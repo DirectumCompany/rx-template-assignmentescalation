@@ -13,7 +13,7 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// </summary>
     /// <param name="assignment">Задание.</param>
     /// <returns>Задача, на основе которой создано задание.</returns>
-    private  Sungero.Docflow.IDeadlineExtensionTask GetDeadlineExtension(Sungero.Workflow.IAssignment assignment)
+    private Sungero.Docflow.IDeadlineExtensionTask GetDeadlineExtension(Sungero.Workflow.IAssignment assignment)
     {
       var task = Sungero.Docflow.DeadlineExtensionTasks.GetAll()
         .Where(j => Equals(j.ParentAssignment, assignment))
@@ -27,7 +27,7 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// </summary>
     /// <param name="user">Пользователь.</param>
     /// <returns>Признак, что  пользователь является руководителем подразделения.</returns>
-    public  bool IsUserDepartmentManager(Sungero.CoreEntities.IUser user)
+    public bool IsUserDepartmentManager(Sungero.CoreEntities.IUser user)
     {
       var employee = Sungero.Company.Employees.GetAll(e => Equals(user, e)).SingleOrDefault();
       var employeeDepartment = employee != null ? employee.Department : null;
@@ -43,30 +43,29 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// </summary>
     /// <param name="assignment">Задание.</param>
     /// <param name="toManager">Уведомление руководителю.</param>
-    private  void SendEscalationNotification(Sungero.Workflow.IAssignment assignment, bool toManager)
+    private void SendEscalationNotification(Sungero.Workflow.IAssignment assignment, bool toManager)
     {
-      var document = Sungero.Docflow.OfficialDocuments.Null;
-      if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
-        document = Sungero.Docflow.ApprovalAssignments.As(assignment).DocumentGroup.OfficialDocuments.First();
-      else
-        document = Sungero.Docflow.ApprovalManagerAssignments.As(assignment).DocumentGroup.OfficialDocuments.First();
-      
       var performer = Sungero.Company.Employees.Null;
       var text = string.Empty;
       var subject = string.Empty;
+      
+      //Если нужно отправить уведомление руководителю.
       if (toManager)
       {
+        //То отправляем руководителю.
         performer = GetManager(assignment.Performer);
         text = Resources.ManagerNotificationTextFormat(Hyperlinks.Get(assignment));
-        subject = Resources.ManagerNotificationSubjectFormat(document.Name);
+        subject = Resources.ManagerNotificationSubjectFormat(assignment.Subject);
       }
       else
       {
+        //Если нет, то отправляет исполнителю задания.
         performer = Sungero.Company.Employees.GetAll(e => Equals(assignment.Performer, e)).SingleOrDefault();
         text = Resources.FirstPerformerNotificationTextFormat(Hyperlinks.Get(assignment));
         subject = Resources.FirstPerformerNotificationSubjectFormat(assignment.Subject);
       }
       
+      //Отправляем уведомление.
       if (performer != null)
       {
         var notice = Sungero.Workflow.SimpleTasks.CreateWithNotices(subject, performer);
@@ -76,10 +75,10 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
       }
     }
     
-    public virtual List<Sungero.Docflow.IApprovalAssignment> GetEscalationApprovalAssignments()
+    public virtual List<Sungero.Workflow.IAssignment> GetEscalationAssignments()
     {
-      return Sungero.Docflow.ApprovalAssignments.GetAll()
-        .Where(x => x.Status == Sungero.Docflow.ApprovalAssignment.Status.InProcess)
+      return Sungero.Workflow.Assignments.GetAll()
+        .Where(x => x.Status == Sungero.Workflow.Assignment.Status.InProcess)
         .Where(x => x.Deadline < Calendar.Now)
         .ToList();
     }
@@ -87,55 +86,86 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// <summary>
     /// Эскалация заданий на согласование.
     /// </summary>
-    public  void ApprovalAssignmentsEscalation()
+    public void ApprovalAssignmentsEscalation()
     {
-      var assignments = GetEscalationApprovalAssignments();
+      //Получаем задания на эскалацию.
+      var assignments = GetEscalationAssignments();
       
       foreach (var assignment in assignments)
       {
+        //Получаем задания на продление срока.
         var deadlineExtension = GetDeadlineExtension(assignment);
         
+        //Если задание на продление срока в работе, то такие задания не эскалируются.
         if (deadlineExtension != null && deadlineExtension.Status == Sungero.Workflow.Task.Status.InProcess)
           continue;
         
-        var shouldNotifyManager = ShouldSendEscalationNotificationToManager(assignment);
-          
+        //Следует ли отправлять уведомление о задержке менеджерам.
+        var shouldNotifyManagers = ShouldSendEscalationNotificationToManager(assignment);
+        
+        //Если задание на продление срока - не стратовано, то отменяем завершаем ее.
+        //Это сделано для того, чтобы не было конфликтов в дальнейшем.
         if (deadlineExtension != null && deadlineExtension.Status == Sungero.Workflow.Task.Status.Draft)
         {
           deadlineExtension.ActiveText = Resources.ApprovalPeriodExpired;
           deadlineExtension.Abort();
         }
-
+        
+        //Если исполнитель задания - руководитель подразделения
         if (Functions.Module.IsUserDepartmentManager(assignment.Performer))
         {
+          //То отправляем только уведомление, если нужно отправлять уведомления менеджерам.
           if (shouldNotifyManager)
             SendEscalationNotification(assignment, true);
           continue;
         }
         
+        //Поучаем руководителя исполнителя.
         var manager = GetManager(assignment.Performer);
         if (manager != null)
         {
+          //Если руководитель не участвует в процессе эскалации
+          //(входит в роль "Руководители, не участвующие в процессе эскалации").
           if (manager.IncludedIn(Constants.Module.ManagersWithoutEscalations))
           {
+            //То отправляем уведомление о задержке, если нужно.
             if (shouldNotifyManager)
               SendEscalationNotification(assignment, true);
             continue;
           }
           
-          assignment.Addressee = manager;
           assignment.ActiveText = Resources.ApprovalPeriodExpired;
           
-            if (CanForward(assignment))
-            assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Approved);
-          else
-            assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Forward);
+          //Если задание было переадресовано
+          if (ForwardAssignemnt(assignment, manager));
+          //Отправляем уведомление предыдущему исполнителю.
+            SendEscalationNotification(assignment, false);
           
-          SendEscalationNotification(assignment, false);
         }
       }
     }
-       
+    
+    /// <summary>
+    /// Переадресовать задание.
+    /// </summary>
+    /// <param name="assignment">Задание на переадресацию.</param>
+    /// <param name="addressee">Работник, кому переадресовать задание.</param>
+    /// <returns>True - если задание было переадресовано.</returns>
+    public virtual bool ForwardAssignemnt(Sungero.Workflow.IAssignment assignment, Sungero.Company.IEmployee addressee)
+    {
+      if (CanForward(assignment, addressee))
+      {
+        if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
+        {
+          var approvalAssign = Sungero.Docflow.ApprovalAssignments.As(assignment);
+          approvalAssign.Addressee = addressee;
+          assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Forward);
+          return true;
+        }
+      }
+      return false;
+    }
+    
     /// <summary>
     /// Определить руководителя сотрудника.
     /// </summary>
@@ -207,81 +237,20 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// <param name="assignment">Задание.</param>
     /// <param name="manager">Руководитель.</param>
     /// <returns></returns>
-    public virtual bool ShouldSendEscalationNotificationToManager(Sungero.Docflow.IApprovalAssignment assignment)
-    {
-      return true; 
-    }
-    
-    public virtual bool CanForward(Sungero.Docflow.IApprovalAssignment assignment)
+    public virtual bool ShouldSendEscalationNotificationToManager(Sungero.Workflow.IAssignment assignment)
     {
       return true;
     }
-      //    public virtual bool CanForwardAssignment(Sungero.Workflow.IAssignment assignment, Sungero.Company.IEmployee manager)
-      //    {
-      //      if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
-      //      {
-      //        Sungero.Docflow.ApprovalAssignments.As().for
-      //        var assignments = Sungero.Docflow.ApprovalAssignments.GetAll(a => Equals(a.Task, assignment.Task) &&
-      //                                                                     Equals(a.TaskStartId, assignment.TaskStartId) &&
-      //                                                                     Equals(a.IterationId, assignment.IterationId));
-//
-      //        // Если у сотрудника есть хоть одно задание в работе - считаем что нет смысла дублировать ему задания.
-      //        // BUG: если assignments материализовать (завернуть ToList), то в задании можно будет переадресовать самому себе, т.к. в BeforeComplete задание считается уже выполненным.
-      //        var hasInProcess = assignments.Where(a => Equals(a.Status, Sungero.Docflow.ApprovalAssignment.Status.InProcess) && Equals(a.Performer, manager)).Any();
-      //        if (hasInProcess)
-      //          return false;
-//
-      //        // При последовательном выполнении сотрудники ещё не получили задания, вычисляем их.
-      //        var currentStageApprovers = GetCurrentIterationEmployeesWithoutAssignment(assignment);
-      //        if (currentStageApprovers.Contains(manager))
-      //          return false;
-//
-      //        var materialized = assignments.ToList();
-      //        // Если у сотрудника нет заданий в работе, проверяем, все ли его задания созданы.
-      //        foreach (var assign in materialized)
-      //        {
-      //          var added = assignment.ForwardedTo.Count(u => Equals(u, manager));
-      //          var created = materialized.Count(a => Equals(a.Performer, manager) && Equals(a.ForwardedFrom, assignment));
-      //          if (added != created)
-      //            return false;
-      //        }
-//
-      //        return true;
-      //      }
-      //      else
-      //        return false;
-      //    }
-//
-      //    private List<Sungero.Company.IEmployee> GetCurrentIterationEmployeesWithoutAssignment(Sungero.Workflow.IAssignment assignment)
-      //    {
-      //      var approvalTask = Sungero.Docflow.ApprovalTasks.As(assignment.Task);
-      //      var performers = Sungero.Docflow.ApprovalAssignments.GetAll(x => Equals(x.Task, approvalTask) && x.IterationId == _obj.IterationId &&
-      //                                                  x.BlockId == _obj.BlockId && x.TaskStartId == _obj.TaskStartId)
-      //        .Select(x => x.Performer).Distinct().ToList();
-      //      return GetCurrentIterationEmployees(approvalTask, assignment.Stage)
-      //        .Where(x => !performers.Contains(x))
-      //        .ToList();
-      //    }
-//
-      //    private List<Sungero.Company.IEmployee> GetCurrentIterationEmployees(Sungero.Docflow.IApprovalTask task, Sungero.Docflow.IApprovalStage stage)
-      //    {
-      //      var result = new List<Sungero.Company.IEmployee>();
-      //      var lastReworkAssignment = Functions.ApprovalTask.GetLastReworkAssignment(task);
-      //      var approvers = Sungero.Docflow.PublicFunctions.ApprovalStage.Remote.GetStagePerformers(task, stage);
-//
-      //      // Исключить согласующих, если они уже подписали документ, либо в последнем задании на доработку было указано, что повторно не отправлять.
-      //      foreach (var approver in approvers)
-      //      {
-      //        if (lastReworkAssignment == null ||
-      //            lastReworkAssignment.Approvers.Any(a => Equals(a.Approver, approver) && a.Action == Sungero.Docflow.ApprovalReworkAssignmentApprovers.Action.SendForApproval) ||
-      //            !lastReworkAssignment.Approvers.Any(a => Equals(a.Approver, approver)))
-      //        {
-      //          if (!Functions.ApprovalTask.HasValidSignature(task, approver))
-      //            result.Add(approver);
-      //        }
-      //      }
-//
-      //      return result;
-      //    }
+    
+    /// <summary>
+    /// Можно ли переадресовать задание сотруднику.
+    /// </summary>
+    /// <param name="assignment">Задание на переадресацию.</param>
+    /// <param name="employee">Работник, кому переадресуется задание.</param>
+    /// <returns></returns>
+    public virtual bool CanForward(Sungero.Workflow.IAssignment assignment, Sungero.Company.IEmployee employee)
+    {
+      return true;
+    }
   }
 }

@@ -41,6 +41,11 @@
       "MinVersion": "0.0.1.0"
     }
   ],
+  "ExplorerTreeOrder": [
+    {
+      "ItemId": "5045d0ae-d36d-4d7e-be04-abda6d463214"
+    }
+  ],
   "HandledEvents": [
     "InitializingServer"
   ],
@@ -55,6 +60,16 @@
       "GenerateHandler": true,
       "MonthSchedule": "Monthly",
       "StartAt": "1753-01-01T08:30:00"
+    }
+  ],
+  "PublicConstants": [
+    {
+      "Name": "ManagersWithoutEscalations",
+      "ParentClasses": [
+        "Module"
+      ],
+      "TypeName": "System.Guid",
+      "Value": "new System.Guid(\"39C47E09-69B9-4192-AC09-E806D3860FD0\")"
     }
   ],
   "PublicStructures": [],
