@@ -49,23 +49,23 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
       var text = string.Empty;
       var subject = string.Empty;
       
-      //Если нужно отправить уведомление руководителю.
+      // Если нужно отправить уведомление руководителю.
       if (toManager)
       {
-        //То отправляем руководителю.
+        // То отправляем руководителю.
         performer = GetManager(assignment.Performer);
         text = Resources.ManagerNotificationTextFormat(Hyperlinks.Get(assignment));
         subject = Resources.ManagerNotificationSubjectFormat(assignment.Subject);
       }
       else
       {
-        //Если нет, то отправляет исполнителю задания.
+        // Если нет, то отправляем исполнителю задания.
         performer = Sungero.Company.Employees.GetAll(e => Equals(assignment.Performer, e)).SingleOrDefault();
         text = Resources.FirstPerformerNotificationTextFormat(Hyperlinks.Get(assignment));
         subject = Resources.FirstPerformerNotificationSubjectFormat(assignment.Subject);
       }
       
-      //Отправляем уведомление.
+      // Отправляем уведомление.
       if (performer != null)
       {
         var notice = Sungero.Workflow.SimpleTasks.CreateWithNotices(subject, performer);
@@ -75,6 +75,10 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
       }
     }
     
+    /// <summary>
+    /// Получить задания на эскалацию
+    /// </summary>
+    /// <returns>Список заданий на эскалацию.</returns>
     public virtual List<Sungero.Workflow.IAssignment> GetEscalationAssignments()
     {
       return Sungero.Workflow.Assignments.GetAll()
@@ -88,57 +92,57 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// </summary>
     public void ApprovalAssignmentsEscalation()
     {
-      //Получаем задания на эскалацию.
+      // Получаем задания на эскалацию.
       var assignments = GetEscalationAssignments();
       
       foreach (var assignment in assignments)
       {
-        //Получаем задания на продление срока.
+        // Получаем задания на продление срока.
         var deadlineExtension = GetDeadlineExtension(assignment);
         
-        //Если задание на продление срока в работе, то такие задания не эскалируются.
+        // Если задание на продление срока в работе, то такие задания не эскалируются.
         if (deadlineExtension != null && deadlineExtension.Status == Sungero.Workflow.Task.Status.InProcess)
           continue;
         
-        //Следует ли отправлять уведомление о задержке менеджерам.
+        // Следует ли отправлять уведомление о задержке менеджерам.
         var shouldNotifyManagers = ShouldSendEscalationNotificationToManager(assignment);
         
-        //Если задание на продление срока - не стратовано, то отменяем завершаем ее.
-        //Это сделано для того, чтобы не было конфликтов в дальнейшем.
+        // Если задание на продление срока - не стратовано, то отменяем завершаем ее.
+        // Это сделано для того, чтобы не было конфликтов в дальнейшем.
         if (deadlineExtension != null && deadlineExtension.Status == Sungero.Workflow.Task.Status.Draft)
         {
           deadlineExtension.ActiveText = Resources.ApprovalPeriodExpired;
           deadlineExtension.Abort();
         }
         
-        //Если исполнитель задания - руководитель подразделения
+        // Если исполнитель задания - руководитель подразделения
         if (Functions.Module.IsUserDepartmentManager(assignment.Performer))
         {
           //То отправляем только уведомление, если нужно отправлять уведомления менеджерам.
-          if (shouldNotifyManager)
+          if (shouldNotifyManagers)
             SendEscalationNotification(assignment, true);
           continue;
         }
         
-        //Поучаем руководителя исполнителя.
+        // Получаем руководителя исполнителя.
         var manager = GetManager(assignment.Performer);
         if (manager != null)
         {
-          //Если руководитель не участвует в процессе эскалации
-          //(входит в роль "Руководители, не участвующие в процессе эскалации").
+          // Если руководитель не участвует в процессе эскалации
+          // (входит в роль "Руководители, не участвующие в процессе эскалации").
           if (manager.IncludedIn(Constants.Module.ManagersWithoutEscalations))
           {
-            //То отправляем уведомление о задержке, если нужно.
-            if (shouldNotifyManager)
+            // То отправляем уведомление о задержке, если нужно.
+            if (shouldNotifyManagers)
               SendEscalationNotification(assignment, true);
             continue;
           }
           
           assignment.ActiveText = Resources.ApprovalPeriodExpired;
           
-          //Если задание было переадресовано
-          if (ForwardAssignemnt(assignment, manager));
-          //Отправляем уведомление предыдущему исполнителю.
+          // Если задание было переадресовано
+          if (ForwardAssignemnt(assignment, manager))
+          // Отправляем уведомление предыдущему исполнителю.
             SendEscalationNotification(assignment, false);
           
         }
@@ -232,7 +236,7 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     }
     
     /// <summary>
-    /// Нужно ли оправить уведомление о задежке задания руководителю/
+    /// Нужно ли оправить уведомление о задежке задания руководителю.
     /// </summary>
     /// <param name="assignment">Задание.</param>
     /// <param name="manager">Руководитель.</param>
