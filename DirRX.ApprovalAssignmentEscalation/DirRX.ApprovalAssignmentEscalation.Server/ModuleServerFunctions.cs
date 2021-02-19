@@ -42,26 +42,25 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// Отправить уведомление о задержке.
     /// </summary>
     /// <param name="assignment">Задание.</param>
-    /// <param name="toManager">Уведомление руководителю.</param>
-    /// <param name="assignmentPerformer">Исполнитель задания.</param>
-    private void SendEscalationNotification(Sungero.Workflow.IAssignment assignment, Sungero.CoreEntities.IUser assignmentPerformer, bool toManager)
+    /// <param name="isManager">Адресат - это менеджер.</param>
+    /// <param name="addressee">Адресат уведомления.</param>
+    /// <returns>Идентификатор уведомления.</returns>
+    private void SendEscalationNotification(Sungero.Workflow.IAssignment assignment, Sungero.CoreEntities.IUser addressee, bool isManager)
     {
-      var performer = Sungero.Company.Employees.Null;
+      var performer = Sungero.Company.Employees.GetAll(e => Equals(assignmentPerformer, e)).SingleOrDefault();
       var text = string.Empty;
       var subject = string.Empty;
-
-      // Если нужно отправить уведомление руководителю.
-      if (toManager)
+      
+      // Если получатель - руководитель.
+      if (isManager)
       {
-        // То отправляем руководителю.
-        performer = GetManager(assignmentPerformer);
+        // То формирует сообщения для руководителя.
         text = Resources.ManagerNotificationTextFormat(Hyperlinks.Get(assignment));
         subject = Resources.ManagerNotificationSubjectFormat(assignment.Subject);
       }
       else
       {
-        // Если нет, то отправляем исполнителю задания.
-        performer = Sungero.Company.Employees.GetAll(e => Equals(assignmentPerformer, e)).SingleOrDefault();
+        // Если нет, то формруем сообщение для исполнителя задания.
         text = Resources.FirstPerformerNotificationTextFormat(Hyperlinks.Get(assignment));
         subject = Resources.FirstPerformerNotificationSubjectFormat(assignment.Subject);
       }
@@ -69,10 +68,14 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
       // Отправляем уведомление.
       if (performer != null)
       {
-        var notice = Sungero.Workflow.SimpleTasks.CreateWithNotices(subject, performer);
+        var notice = Sungero.Workflow.SimpleTasks.CreateWithNotices(subject, addressee);
         notice.ActiveText = text;
         notice.Attachments.Add(assignment);
         notice.Start();
+        if (isManager)
+          Logger.Debug(string.Format("Send esclation notification (Id={0}) to manager (Id={1}) about assignment (Id={2})", notice.Id, addressee.Id, assignment.id));
+        else
+          Logger.Debug(string.Format("Send esclation notification (Id={0}) to employee (Id={1}) about assignment (Id={2})", notice.Id, addressee.Id, assignment.id));
       }
     }
     
@@ -94,8 +97,16 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// </summary>
     public void ApprovalAssignmentsEscalation()
     {
-      // Получаем задания на эскалацию.
-      var assignments = GetEscalationAssignments();
+      List<Sungero.Workflow.IAssignment> assignments;
+      try
+      {
+        assignments = GetEscalationAssignments();
+        Logger.Debug(string.Format("Got {0} assignments for escalation", assignments.Count));
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("Can not Get escalation assignments for escalation",ex);
+      }
       
       foreach (var assignment in assignments)
       {
@@ -128,8 +139,17 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
         {
           //То отправляем только уведомление, если нужно отправлять уведомления менеджерам.
           if (shouldNotifyManagers)
-            SendEscalationNotification(assignment, assignment.Performer, true);
-          continue;
+          {
+            try
+            {
+              SendEscalationNotification(assignment, assignment.Performer, true);
+            }
+            catch (Exception ex)
+            {
+              Logger.Error(string.Format("Error on sending esclation notification to user (Id={0}) for assignment (Id={1})", assignment.Performer.Id, assignment.Id), ex);
+            }
+            continue;
+          }
         }
         
         // Получаем руководителя исполнителя.
@@ -142,7 +162,16 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
           {
             // То отправляем уведомление о задержке, если нужно.
             if (shouldNotifyManagers)
-              SendEscalationNotification(assignment, assignment.Performer, true);
+            {
+              try
+              {
+                SendEscalationNotification(assignment, assignment.Performer, true);
+              }
+              catch (Exception ex)
+              {
+                Logger.Error(string.Format("Error on sending esclation notification to user (Id={0}) for assignment (Id={1})", assignment.Performer.Id, assignment.Id), ex);
+              }
+            }
             continue;
           }
           
@@ -151,8 +180,17 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
           
           // Переадресуем задание руководителю.
           if (ForwardAssignemnt(assignment, manager))
+          {
             // Если задание было переадресовано, то уведомляет прерыдущего исполнителя.
-            SendEscalationNotification(assignment, previousPerformer, false);
+            try
+            {
+              SendEscalationNotification(assignment, previousPerformer, false);
+            }
+            catch (Exception ex)
+            {
+              Logger.Error(string.Format("Error on sending esclation notification to user (Id={0}) for assignment (Id={1})", assignment.Performer.Id, assignment.Id), ex);
+            }
+          }
         }
       }
     }
