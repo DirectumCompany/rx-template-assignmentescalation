@@ -147,22 +147,11 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
           }
           
           assignment.ActiveText = Resources.ApprovalPeriodExpired;
-          
-          var IsForward = false;
           var previousPerformer = assignment.Performer;
           
-          try
-          {
-            // Переадресуем задания руководителю.
-            IsForward = ForwardAssignemnt(assignment, manager);              
-          }
-          catch(Exception ex)
-          {
-            Logger.Error(string.Format("Error on forwarding assignment (Id = {0}) to user (Id = {1})", assignment.Id, manager.Id), ex);
-          }
-          
-          // Если задание было переадресовано, то уведомляет прерыдущего исполнителя. 
-          if (IsForward)
+          // Переадресуем задание руководителю.
+          if (ForwardAssignemnt(assignment, manager))
+            // Если задание было переадресовано, то уведомляет прерыдущего исполнителя.
             SendEscalationNotification(assignment, previousPerformer, false);
         }
       }
@@ -181,8 +170,16 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
         if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
         {
           var approvalAssign = Sungero.Docflow.ApprovalAssignments.As(assignment);
-          approvalAssign.Addressee = addressee;
-          assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Forward);
+          try
+          {
+            approvalAssign.Addressee = addressee;
+            assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Forward);
+          }
+          catch(Exception ex)
+          {
+            Logger.Error(string.Format("Error on forwarding assignment (Id = {0}) to user (Id = {1})", assignment.Id, addressee.Id), ex);
+            return false;
+          }
           return true;
         }
       }
