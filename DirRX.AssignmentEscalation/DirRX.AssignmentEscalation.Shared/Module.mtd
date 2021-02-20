@@ -1,0 +1,57 @@
+{
+  "$type": "Sungero.Metadata.SolutionMetadata, Sungero.Metadata",
+  "NameGuid": "eb7c1056-94b1-4147-83d1-b2e23c1c2da6",
+  "Name": "AssignmentEscalation",
+  "AsyncHandlers": [],
+  "ClientAssemblyName": "DirRX.AssignmentEscalation.Client",
+  "ClientBaseAssemblyName": "DirRX.AssignmentEscalation.ClientBase",
+  "ClientBaseNamespace": "DirRX.AssignmentEscalation.ClientBase",
+  "ClientNamespace": "DirRX.AssignmentEscalation.Client",
+  "Code": "Assignm",
+  "CompanyCode": "DirRX",
+  "Cover": {
+    "NameGuid": "f5fb9b01-9e96-44ed-8cf4-937fb9e53a3e",
+    "Actions": [],
+    "Background": null,
+    "Footer": {
+      "NameGuid": "541fce0d-b1b8-4232-b7cc-0764c617b23c",
+      "BackgroundPosition": "Stretch"
+    },
+    "Groups": [],
+    "Header": {
+      "NameGuid": "65dc6ec9-4811-433f-ae77-0bb95f6c377d",
+      "BackgroundPosition": "Stretch"
+    }
+  },
+  "DesktopViews": [],
+  "IconResourcesKeys": [],
+  "Importance": "Medium",
+  "InterfaceAssemblyName": "Sungero.Domain.Interfaces",
+  "InterfaceNamespace": "DirRX.AssignmentEscalation",
+  "OrderedSpecialFolders": [],
+  "PublicStructures": [],
+  "ResourceInterfaceAssemblyName": "Sungero.Domain.Interfaces",
+  "ResourceInterfaceNamespace": "DirRX.AssignmentEscalation",
+  "ResourcesKeys": [],
+  "ServerAssemblyName": "DirRX.AssignmentEscalation.Server",
+  "ServerNamespace": "DirRX.AssignmentEscalation.Server",
+  "SharedAssemblyName": "DirRX.AssignmentEscalation.Shared",
+  "SharedNamespace": "DirRX.AssignmentEscalation.Shared",
+  "SpecialFolders": [],
+  "Version": "0.0.1.0",
+  "Widgets": [],
+  "Versions": [
+    {
+      "Type": "SolutionMetadata",
+      "Number": 6
+    },
+    {
+      "Type": "ModuleMetadata",
+      "Number": 6
+    },
+    {
+      "Type": "DomainApi",
+      "Number": 3
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "$type": "Sungero.Metadata.ModuleMetadata, Sungero.Metadata",
+  "NameGuid": "a8054552-0db5-4bbb-8967-01e95b836eb8",
+  "Name": "ApprovalAssignmentEscalation",
+  "AsyncHandlers": [],
+  "ClientAssemblyName": "DirRX.ApprovalAssignmentEscalation.Client",
+  "ClientBaseAssemblyName": "DirRX.ApprovalAssignmentEscalation.ClientBase",
+  "ClientBaseNamespace": "DirRX.ApprovalAssignmentEscalation.ClientBase",
+  "ClientNamespace": "DirRX.ApprovalAssignmentEscalation.Client",
+  "Code": "Approva",
+  "CompanyCode": "DirRX",
+  "Cover": {
+    "NameGuid": "46d7d79e-40c7-420d-912a-a2210dc19041",
+    "Actions": [],
+    "Background": null,
+    "Footer": {
+      "NameGuid": "81ce6ec5-eb71-47e6-ac80-71e82f7be8c0",
+      "BackgroundPosition": "Stretch"
+    },
+    "Groups": [],
+    "Header": {
+      "NameGuid": "c1ece5d1-76d7-455e-86e0-7a80625a22b2",
+      "BackgroundPosition": "Stretch"
+    }
+  },
+  "Dependencies": [
+    {
+      "Id": "eb7c1056-94b1-4147-83d1-b2e23c1c2da6",
+      "IsSolutionModule": true,
+      "MaxVersion": "",
+      "MinVersion": ""
+    },
+    {
+      "Id": "92491aa6-c4df-4f46-a807-ebdd337bda74",
+      "MaxVersion": "",
+      "MinVersion": "1.1.0.0"
+    },
+    {
+      "Id": "ec7b606a-21ee-4f16-aba8-ab8c2af76d12",
+      "MaxVersion": "",
+      "MinVersion": "0.0.1.0"
+    }
+  ],
+  "ExplorerTreeOrder": [
+    {
+      "ItemId": "86a3161d-2ce6-44bc-9ed5-5d34a1fb35dd",
+      "PreviousItemId": "5045d0ae-d36d-4d7e-be04-abda6d463214"
+    },
+    {
+      "ItemId": "ea0622d4-c0af-4eee-ab3b-b7254d8bc2a3",
+      "PreviousItemId": "86a3161d-2ce6-44bc-9ed5-5d34a1fb35dd"
+    }
+  ],
+  "HandledEvents": [
+    "InitializingServer"
+  ],
+  "IconResourcesKeys": [],
+  "Importance": "Medium",
+  "InterfaceAssemblyName": "Sungero.Domain.Interfaces",
+  "InterfaceNamespace": "DirRX.ApprovalAssignmentEscalation",
+  "Jobs": [
+    {
+      "NameGuid": "5433fa35-7318-4056-90f6-95f0e04a1bc6",
+      "Name": "ApprovalAssignmentEscalation",
+      "GenerateHandler": true,
+      "MonthSchedule": "Monthly",
+      "StartAt": "1753-01-01T08:30:00"
+    }
+  ],
+  "PublicConstants": [
+    {
+      "Name": "ManagersWithoutEscalations",
+      "ParentClasses": [
+        "Module"
+      ],
+      "TypeName": "System.Guid",
+      "Value": "new System.Guid(\"39C47E09-69B9-4192-AC09-E806D3860FD0\")"
+    }
+  ],
+  "PublicStructures": [],
+  "ResourceInterfaceAssemblyName": "Sungero.Domain.Interfaces",
+  "ResourceInterfaceNamespace": "DirRX.ApprovalAssignmentEscalation",
+  "ResourcesKeys": [
+    "RoleNameManagersWithoutEsclalation",
+    "RoleDescriptionManagersWithoutEsclation",
+    "ApprovalPeriodExpired",
+    "ManagerNotificationText",
+    "ManagerNotificationSubject",
+    "FirstPerformerNotificationText",
+    "FirstPerformerNotificationSubject"
+  ],
+  "ServerAssemblyName": "DirRX.ApprovalAssignmentEscalation.Server",
+  "ServerNamespace": "DirRX.ApprovalAssignmentEscalation.Server",
+  "SharedAssemblyName": "DirRX.ApprovalAssignmentEscalation.Shared",
+  "SharedNamespace": "DirRX.ApprovalAssignmentEscalation.Shared",
+  "SpecialFolders": [],
+  "Version": "0.0.1.0",
+  "Widgets": [],
+  "Versions": [
+    {
+      "Type": "ModuleMetadata",
+      "Number": 6
+    },
+    {
+      "Type": "DomainApi",
+      "Number": 3
+    }
+  ]
+}
