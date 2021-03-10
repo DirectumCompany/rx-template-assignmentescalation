@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="DisplayName" xml:space="preserve">
-    <value>ApprovalAssignmentEscalation</value>
+    <value>Escalation</value>
   </data>
   <data name="CoverTitle" xml:space="preserve">
-    <value>ApprovalAssignmentEscalation</value>
+    <value>Escalation</value>
   </data>
   <data name="JobDisplayName_5433fa357318405690f695f0e04a1bc6" xml:space="preserve">
-    <value>Approval assignment escalation</value>
+    <value>Assignment escalation</value>
   </data>
   <data name="JobDescription_5433fa357318405690f695f0e04a1bc6" xml:space="preserve">
-    <value>Escalating approval assignment to performer manager</value>
+    <value>Escalating assignment to performer manager.</value>
   </data>
 </root>

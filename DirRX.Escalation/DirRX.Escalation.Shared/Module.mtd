@@ -1,13 +1,13 @@
 {
   "$type": "Sungero.Metadata.ModuleMetadata, Sungero.Metadata",
   "NameGuid": "a8054552-0db5-4bbb-8967-01e95b836eb8",
-  "Name": "ApprovalAssignmentEscalation",
+  "Name": "Escalation",
   "AsyncHandlers": [],
-  "ClientAssemblyName": "DirRX.ApprovalAssignmentEscalation.Client",
-  "ClientBaseAssemblyName": "DirRX.ApprovalAssignmentEscalation.ClientBase",
-  "ClientBaseNamespace": "DirRX.ApprovalAssignmentEscalation.ClientBase",
-  "ClientNamespace": "DirRX.ApprovalAssignmentEscalation.Client",
-  "Code": "Approva",
+  "ClientAssemblyName": "DirRX.Escalation.Client",
+  "ClientBaseAssemblyName": "DirRX.Escalation.ClientBase",
+  "ClientBaseNamespace": "DirRX.Escalation.ClientBase",
+  "ClientNamespace": "DirRX.Escalation.Client",
+  "Code": "Escalat",
   "CompanyCode": "DirRX",
   "Cover": {
     "NameGuid": "46d7d79e-40c7-420d-912a-a2210dc19041",
@@ -41,27 +41,17 @@
       "MinVersion": "0.0.1.0"
     }
   ],
-  "ExplorerTreeOrder": [
-    {
-      "ItemId": "86a3161d-2ce6-44bc-9ed5-5d34a1fb35dd",
-      "PreviousItemId": "5045d0ae-d36d-4d7e-be04-abda6d463214"
-    },
-    {
-      "ItemId": "ea0622d4-c0af-4eee-ab3b-b7254d8bc2a3",
-      "PreviousItemId": "86a3161d-2ce6-44bc-9ed5-5d34a1fb35dd"
-    }
-  ],
   "HandledEvents": [
     "InitializingServer"
   ],
   "IconResourcesKeys": [],
   "Importance": "Medium",
   "InterfaceAssemblyName": "Sungero.Domain.Interfaces",
-  "InterfaceNamespace": "DirRX.ApprovalAssignmentEscalation",
+  "InterfaceNamespace": "DirRX.Escalation",
   "Jobs": [
     {
       "NameGuid": "5433fa35-7318-4056-90f6-95f0e04a1bc6",
-      "Name": "ApprovalAssignmentEscalation",
+      "Name": "AssignmentEscalation",
       "GenerateHandler": true,
       "MonthSchedule": "Monthly",
       "StartAt": "1753-01-01T08:30:00"
@@ -79,7 +69,7 @@
   ],
   "PublicStructures": [],
   "ResourceInterfaceAssemblyName": "Sungero.Domain.Interfaces",
-  "ResourceInterfaceNamespace": "DirRX.ApprovalAssignmentEscalation",
+  "ResourceInterfaceNamespace": "DirRX.Escalation",
   "ResourcesKeys": [
     "RoleNameManagersWithoutEsclalation",
     "RoleDescriptionManagersWithoutEsclation",
@@ -89,10 +79,10 @@
     "FirstPerformerNotificationText",
     "FirstPerformerNotificationSubject"
   ],
-  "ServerAssemblyName": "DirRX.ApprovalAssignmentEscalation.Server",
-  "ServerNamespace": "DirRX.ApprovalAssignmentEscalation.Server",
-  "SharedAssemblyName": "DirRX.ApprovalAssignmentEscalation.Shared",
-  "SharedNamespace": "DirRX.ApprovalAssignmentEscalation.Shared",
+  "ServerAssemblyName": "DirRX.Escalation.Server",
+  "ServerNamespace": "DirRX.Escalation.Server",
+  "SharedAssemblyName": "DirRX.Escalation.Shared",
+  "SharedNamespace": "DirRX.Escalation.Shared",
   "SpecialFolders": [],
   "Version": "0.0.1.0",
   "Widgets": [],

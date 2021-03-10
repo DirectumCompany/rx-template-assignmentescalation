@@ -5,7 +5,7 @@ using Sungero.Core;
 using Sungero.CoreEntities;
 using Sungero.Domain.Initialization;
 
-namespace DirRX.ApprovalAssignmentEscalation.Server
+namespace DirRX.Escalation.Server
 {
   public partial class ModuleInitializer
   {
@@ -21,7 +21,7 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     {
       Logger.Debug("Init: creating roles");
       Sungero.Docflow.PublicInitializationFunctions.Module.CreateRole(
-        Resources.RoleNameManagersWithoutEsclalation, DirRX.ApprovalAssignmentEscalation.Resources.RoleDescriptionManagersWithoutEsclation, Constants.Module.ManagersWithoutEscalations);
+        Resources.RoleNameManagersWithoutEsclalation, DirRX.Escalation.Resources.RoleDescriptionManagersWithoutEsclation, Constants.Module.ManagersWithoutEscalations);
     }
   }
 }

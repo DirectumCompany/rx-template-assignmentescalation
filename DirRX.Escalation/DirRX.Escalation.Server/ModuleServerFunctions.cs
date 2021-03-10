@@ -4,7 +4,7 @@ using System.Linq;
 using Sungero.Core;
 using Sungero.CoreEntities;
 
-namespace DirRX.ApprovalAssignmentEscalation.Server
+namespace DirRX.Escalation.Server
 {
   public class ModuleFunctions
   {
@@ -104,7 +104,7 @@ namespace DirRX.ApprovalAssignmentEscalation.Server
     /// <summary>
     /// Эскалация заданий на согласование.
     /// </summary>
-    public void ApprovalAssignmentsEscalation()
+    public void AssignmentsEscalation()
     {
       var assignments = new List<Sungero.Workflow.IAssignment>();
       try

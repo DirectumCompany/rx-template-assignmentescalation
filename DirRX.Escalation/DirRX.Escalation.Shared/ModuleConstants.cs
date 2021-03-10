@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using Sungero.Core;
 
-namespace DirRX.ApprovalAssignmentEscalation.Constants
+namespace DirRX.Escalation.Constants
 {
   public static class Module
   {

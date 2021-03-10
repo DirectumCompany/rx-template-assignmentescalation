@@ -4,10 +4,9 @@ using System.Linq;
 using Sungero.Core;
 using Sungero.CoreEntities;
 
-namespace DirRX.ApprovalAssignmentEscalation.Shared
+namespace DirRX.Escalation.Server
 {
-  public class ModuleFunctions
+  partial class EscalationHandlers
   {
-
   }
 }

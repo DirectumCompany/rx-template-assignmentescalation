@@ -4,7 +4,7 @@ using System.Linq;
 using Sungero.Core;
 using Sungero.CoreEntities;
 
-namespace DirRX.ApprovalAssignmentEscalation.Client
+namespace DirRX.Escalation.Client
 {
 
 }
