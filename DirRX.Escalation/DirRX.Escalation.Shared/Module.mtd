@@ -49,6 +49,8 @@
   "Importance": "Medium",
   "InterfaceAssemblyName": "Sungero.Domain.Interfaces",
   "InterfaceNamespace": "DirRX.Escalation",
+  "IsolatedAssemblyName": "DirRX.Escalation.Isolated",
+  "IsolatedNamespace": "DirRX.Escalation.Isolated",
   "Jobs": [
     {
       "NameGuid": "5433fa35-7318-4056-90f6-95f0e04a1bc6",
