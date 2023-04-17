@@ -21,7 +21,8 @@
     "Header": {
       "NameGuid": "c1ece5d1-76d7-455e-86e0-7a80625a22b2",
       "BackgroundPosition": "Stretch"
-    }
+    },
+    "Tabs": []
   },
   "Dependencies": [
     {
@@ -48,6 +49,8 @@
   "Importance": "Medium",
   "InterfaceAssemblyName": "Sungero.Domain.Interfaces",
   "InterfaceNamespace": "DirRX.Escalation",
+  "IsolatedAssemblyName": "DirRX.Escalation.Isolated",
+  "IsolatedNamespace": "DirRX.Escalation.Isolated",
   "Jobs": [
     {
       "NameGuid": "5433fa35-7318-4056-90f6-95f0e04a1bc6",
@@ -89,7 +92,7 @@
   "Versions": [
     {
       "Type": "ModuleMetadata",
-      "Number": 6
+      "Number": 8
     },
     {
       "Type": "DomainApi",
