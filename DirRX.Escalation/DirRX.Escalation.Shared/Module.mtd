@@ -52,6 +52,7 @@
   "InterfaceNamespace": "DirRX.Escalation",
   "IsolatedAssemblyName": "DirRX.Escalation.Isolated",
   "IsolatedNamespace": "DirRX.Escalation.Isolated",
+  "IsVisible": false,
   "Jobs": [
     {
       "NameGuid": "5433fa35-7318-4056-90f6-95f0e04a1bc6",
@@ -60,6 +61,9 @@
       "MonthSchedule": "Monthly",
       "StartAt": "1753-01-01T08:30:00"
     }
+  ],
+  "Overridden": [
+    "IsVisible"
   ],
   "PublicConstants": [
     {
