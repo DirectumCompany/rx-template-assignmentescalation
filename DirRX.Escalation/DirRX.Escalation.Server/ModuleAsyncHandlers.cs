@@ -6,7 +6,7 @@ using Sungero.CoreEntities;
 
 namespace DirRX.Escalation.Server
 {
-  public class ModuleAsyncHandlers
+  public partial class ModuleAsyncHandlers
   {
 
   }
