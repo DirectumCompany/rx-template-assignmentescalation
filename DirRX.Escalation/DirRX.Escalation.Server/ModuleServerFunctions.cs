@@ -84,38 +84,40 @@ namespace DirRX.Escalation.Server
         {
           Logger.Error(string.Format("Error on sending esclation notification to user (Id={0}) for assignment (Id={1})", assignment.Performer.Id, assignment.Id), ex);
           return;
-        } 
+        }
       }
     }
     
     /// <summary>
-    /// Получить задания на эскалацию.
+    /// Получить ид заданий на эскалацию.
     /// </summary>
     /// <returns>Список заданий на эскалацию.</returns>
-    public virtual List<Sungero.Workflow.IAssignment> GetEscalationAssignments()
+    public virtual List<long> GetEscalationAssignmentIds()
     {
       return Sungero.Docflow.ApprovalAssignments.GetAll()
         .Where(x => x.Status == Sungero.Workflow.Assignment.Status.InProcess)
-        .Where(x => x.Deadline < Calendar.Now)
-        .Select(x => Sungero.Workflow.Assignments.As(x))
+        //.Where(x => x.Deadline < Calendar.Now)
+        .Select(x => Sungero.Workflow.Assignments.As(x).Id)
         .ToList();
     }
     
     /// <summary>
-    /// Эскалация заданий на согласование.
+    /// Получить пачку заданий на эскалацию.
     /// </summary>
-    public void AssignmentsEscalation()
+    /// <param name="ids">Список ид заданий.</param>
+    /// <returns>Возвращает задания.</returns>
+    public virtual List<Sungero.Workflow.IAssignment> GetEscalationAssignmentsChunk(List<long> ids)
+    {
+      return Sungero.Workflow.Assignments.GetAll(a => ids.Contains(a.Id)).ToList();
+    }
+    
+    /// <summary>
+    /// Эскалация пачки заданий на согласование.
+    /// </summary>
+    public void AssignmentsEscalationChunk(List<long> ids)
     {
       var assignments = new List<Sungero.Workflow.IAssignment>();
-      try
-      {
-        assignments = GetEscalationAssignments();
-        Logger.Debug(string.Format("Got {0} assignments for escalation", assignments.Count));
-      }
-      catch (Exception ex)
-      {
-        Logger.Error("Can not Get escalation assignments for escalation",ex);
-      }
+      assignments = GetEscalationAssignmentsChunk(ids);
       
       foreach (var assignment in assignments)
       {
@@ -175,7 +177,6 @@ namespace DirRX.Escalation.Server
           if (ForwardAssignemnt(assignment, manager))
             // Если задание было переадресовано, то уведомляет прерыдущего исполнителя.
             SendEscalationNotification(assignment, previousPerformer, false);
-          
         }
       }
     }
