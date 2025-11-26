@@ -96,7 +96,7 @@ namespace DirRX.Escalation.Server
     {
       return Sungero.Docflow.ApprovalAssignments.GetAll()
         .Where(x => x.Status == Sungero.Workflow.Assignment.Status.InProcess)
-        //.Where(x => x.Deadline < Calendar.Now)
+        .Where(x => x.Deadline < Calendar.Now)
         .Select(x => Sungero.Workflow.Assignments.As(x).Id)
         .ToList();
     }
@@ -105,7 +105,7 @@ namespace DirRX.Escalation.Server
     /// Получить пачку заданий на эскалацию.
     /// </summary>
     /// <param name="ids">Список ид заданий.</param>
-    /// <returns>Возвращает задания.</returns>
+    /// <returns>Задания.</returns>
     public virtual List<Sungero.Workflow.IAssignment> GetEscalationAssignmentsChunk(List<long> ids)
     {
       return Sungero.Workflow.Assignments.GetAll(a => ids.Contains(a.Id)).ToList();

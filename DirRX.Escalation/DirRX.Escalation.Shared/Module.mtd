@@ -7,7 +7,7 @@
       "NameGuid": "1b5617e6-a346-44f0-ad61-ff7dc27e70ec",
       "Name": "SendEscalationNotification",
       "DelayPeriod": 15,
-      "DelayStrategy": "ExponentialDelayStrategy",
+      "DelayStrategy": "RegularDelayStrategy",
       "IsHandlerGenerated": true,
       "Parameters": [
         {
