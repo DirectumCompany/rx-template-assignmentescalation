@@ -2,7 +2,22 @@
   "$type": "Sungero.Metadata.ModuleMetadata, Sungero.Metadata",
   "NameGuid": "a8054552-0db5-4bbb-8967-01e95b836eb8",
   "Name": "Escalation",
-  "AsyncHandlers": [],
+  "AsyncHandlers": [
+    {
+      "NameGuid": "1b5617e6-a346-44f0-ad61-ff7dc27e70ec",
+      "Name": "SendEscalationNotification",
+      "DelayPeriod": 15,
+      "DelayStrategy": "RegularDelayStrategy",
+      "IsHandlerGenerated": true,
+      "Parameters": [
+        {
+          "NameGuid": "525f2ae0-0906-4fa1-9d97-7d2661bf23dc",
+          "Name": "IdsAssignment",
+          "ParameterType": "String"
+        }
+      ]
+    }
+  ],
   "ClientAssemblyName": "DirRX.Escalation.Client",
   "ClientBaseAssemblyName": "DirRX.Escalation.ClientBase",
   "ClientBaseNamespace": "DirRX.Escalation.ClientBase",
@@ -65,6 +80,14 @@
     "IsVisible"
   ],
   "PublicConstants": [
+    {
+      "Name": "Chunk",
+      "ParentClasses": [
+        "Module"
+      ],
+      "TypeName": "System.Int32",
+      "Value": "100"
+    },
     {
       "Name": "ManagersWithoutEscalations",
       "ParentClasses": [
