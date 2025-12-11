@@ -94,9 +94,14 @@ namespace DirRX.Escalation.Server
     /// <returns>Список заданий на эскалацию.</returns>
     public virtual List<long> GetEscalationAssignmentIds()
     {
-      return Sungero.Docflow.ApprovalAssignments.GetAll()
-        .Where(x => x.Status == Sungero.Workflow.Assignment.Status.InProcess)
-        .Where(x => x.Deadline < Calendar.Now)
+      return Sungero.Workflow.Assignments.GetAll()
+        .Where(x =>
+               (Sungero.Docflow.ApprovalAssignments.Is(x) &&
+                Sungero.Docflow.ApprovalAssignments.As(x).Status == Sungero.Workflow.Assignment.Status.InProcess &&
+                Sungero.Docflow.ApprovalAssignments.As(x).Deadline < Calendar.Now) ||
+               (Sungero.DocflowApproval.EntityApprovalAssignments.Is(x) &&
+                Sungero.DocflowApproval.EntityApprovalAssignments.As(x).Status == Sungero.Workflow.Assignment.Status.InProcess &&
+                Sungero.DocflowApproval.EntityApprovalAssignments.As(x).Deadline < Calendar.Now))
         .Select(x => Sungero.Workflow.Assignments.As(x).Id)
         .ToList();
     }
@@ -191,22 +196,29 @@ namespace DirRX.Escalation.Server
     {
       if (CanForward(assignment, addressee))
       {
-        if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
+        try
         {
-          var approvalAssign = Sungero.Docflow.ApprovalAssignments.As(assignment);
-          try
+          if (Sungero.Docflow.ApprovalAssignments.Is(assignment))
           {
+            var approvalAssign = Sungero.Docflow.ApprovalAssignments.As(assignment);
             approvalAssign.Addressee = addressee;
             assignment.Complete(Sungero.Docflow.ApprovalAssignment.Result.Forward);
           }
-          catch(Exception ex)
+          else if (Sungero.DocflowApproval.EntityApprovalAssignments.Is(assignment))
           {
-            Logger.Error(string.Format("Error on forwarding assignment (Id = {0}) to user (Id = {1})", assignment.Id, addressee.Id), ex);
-            return false;
+            var approvalAssign = Sungero.DocflowApproval.EntityApprovalAssignments.As(assignment);
+            approvalAssign.ForwardTo = addressee;
+            assignment.Complete(Sungero.DocflowApproval.EntityApprovalAssignment.Result.Forward);
           }
-          return true;
         }
+        catch(Exception ex)
+        {
+          Logger.Error(string.Format("Error on forwarding assignment (Id = {0}) to user (Id = {1})", assignment.Id, addressee.Id), ex);
+          return false;
+        }
+        return true;
       }
+      
       return false;
     }
     
